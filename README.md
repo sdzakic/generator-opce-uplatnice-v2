@@ -1,4 +1,85 @@
+# Pregled: Modernizirani Generator Opće Uplatnice
+
+**Ova aplikacija je "vibe coded" uz pomoć AI asistenata.**
+
+Aplikaciju možete isprobati ovdje: [https://sdzakic.github.io/generator-opce-uplatnice-v2/](https://sdzakic.github.io/generator-opce-uplatnice-v2/)
+
+Ovaj projekt je forkan s [github.com/knee-cola/generator-opce-uplatnice](https://github.com/knee-cola/generator-opce-uplatnice/).
+
+Ta je aplikacija nadogradnja web aplikacije [github.com/Bikonja/generator-barkoda-uplatnica](https://github.com/Bikonja/generator-barkoda-uplatnica), čiji je autor [Igor Loborec](https://github.com/Bikonja).
+
+2D bar kod je generiran uz pomoć [biblioteke PDF417-js](https://github.com/bkuzmic/pdf417-js), čiji je autor [Boris Kuzmic](https://github.com/bkuzmic).
+
+Ovaj dokument opisuje promjene napravljene radi modernizacije React aplikacije i pruža upute za pokretanje i održavanje.
+
+## Pregled promjena
+
+- **Build sustav**: Migrirano s naslijeđenog Babel-a u pregledniku na **Vite** za brži razvoj i optimizirane produkcijske verzije.
+- **Upravljanje stanjem**: Zamijenjen naslijeđeni Redux s **Redux Toolkit-om**.
+    - `src/redux/nalogSlice.js`: Sadrži svu logiku za ažuriranje stanja obrasca, čišćenje i učitavanje.
+    - `src/redux/store.js`: Konfigurira store.
+- **Komponente**: Sve Class komponente pretvorene u **Functional Components** koristeći **Hooks**.
+    - `src/hooks/useNalogField.js`: Prilagođeni hook koji upravlja povezivanjem ulaznih polja s Reduxom i logikom validacije.
+    - `src/components/form/*`: Modularizirane UI komponente (`TextInput`, `SelectBase`, `Barcode`, itd.).
+    - `src/components/LoadDialog.jsx` & `SaveDialog.jsx`: Integrirana logika za lokalnu pohranu i rukovanje datotekama izravno u ovim komponentama.
+- **Naslijeđene biblioteke**:
+    - `src/lib/BarcodePayment.js`: Refaktorirano u ES modul (uklonjen IIFE, jQuery zamijenjen izvornim JS-om).
+    - `src/lib/bcmath-min.js` & `src/lib/pdf417-min.js`: Refaktorirano u ES module s ispravnim exportima/importima.
+    - `src/lib/Blob.js`: Uklonjeno (nije potrebno u modernim preglednicima/buildovima).
+    - `src/main.jsx`: Očišćeno od globalnih importova s nuspojavama.
+
+## Struktura projekta
+
+```
+src/
+├── assets/          # Statička imovina (slike)
+├── components/      # React komponente
+│   ├── form/        # Komponente specifične za obrazac (TextInput, Barcode, itd.)
+│   └── ...          # Dijalozi i glavna Forma
+├── hooks/           # Prilagođeni React hookovi (useNalogField)
+├── lib/             # Biblioteke logike (BarcodePayment, facade, itd.)
+├── redux/           # Redux postavke (store, slices)
+├── App.jsx          # Glavni izgled aplikacije
+├── main.jsx         # Ulazna točka (Provideri, globalni importi)
+└── index.css        # Stilovi
+```
+
+## Kako pokrenuti
+
+1.  **Instalirajte ovisnosti** (ako niste):
+    ```bash
+    npm install
+    ```
+2.  **Pokrenite razvojni poslužitelj**:
+    ```bash
+    npm run dev
+    ```
+3.  **Build za produkciju** (izlaz u `dist/` za GitHub Pages):
+    ```bash
+    npm run build
+    ```
+
+## Provjera
+
+- **Unos u obrazac**: Tipkanje u polja treba ažurirati stanje i pokrenuti validaciju (crveni obrubi za neispravan unos).
+- **Barkod**: Barkod bi se trebao regenerirati dok tipkate ispravne podatke.
+- **Dijalozi**:
+    - "Spremi u web preglednik": Treba spremiti u lokalnu pohranu.
+    - "Spremi u datoteku": Treba preuzeti JSON datoteku.
+    - "Učitaj odabrani nalog": Treba popuniti obrazac iz pohrane.
+    - "Učitaj nalog iz datoteke": Treba popuniti obrazac iz učitanog JSON-a.
+- **Višestruke uplatnice**:
+    - "DODAJ UPLATNICU": Treba dodati novi prazni obrazac ispod postojećeg.
+    - "NOVI NALOG (RESET)": Treba resetirati prikaz na jedan prazni obrazac.
+    - Uređivanje jednog obrasca ne bi smjelo utjecati na druge (neovisno generiranje barkoda).
+
+---
+
 # Walkthrough: Modernized Generator Opće Uplatnice
+
+**This application was "vibe coded" with the help of AI assistants.**
+
+You can try the live application here: [https://sdzakic.github.io/generator-opce-uplatnice-v2/](https://sdzakic.github.io/generator-opce-uplatnice-v2/)
 
 This project was forked from [github.com/knee-cola/generator-opce-uplatnice](https://github.com/knee-cola/generator-opce-uplatnice/).
 
@@ -50,7 +131,7 @@ src/
     ```bash
     npm run dev
     ```
-3.  **Build for production** (outputs to `docs/` for GitHub Pages):
+3.  **Build for production** (outputs to `dist/` for GitHub Pages):
     ```bash
     npm run build
     ```
