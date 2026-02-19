@@ -1,31 +1,64 @@
-# Što je ovo?
-Ovo je source kod generatora naloga za plaćanje HUB 3A sa 2D kodom (opće uplatnice).
+# Walkthrough: Modernized Generator Opće Uplatnice
 
-Ova aplikacija predstavlja nadogradnju web aplikacije [github.com/Bikonja/generator-barkoda-uplatnica](https://github.com/Bikonja/generator-barkoda-uplatnica), čiji je autor [Igor Loborec](https://github.com/Bikonja).
+This document outlines the changes made to modernize the React application and provides instructions for running and maintaining it.
 
-2D bar kod je generiran uz pomoć [biblioteke PDF417-js](https://github.com/bkuzmic/pdf417-js), čiji je autor [Boris Kuzmic](https://github.com/bkuzmic).
+## Changes Overview
 
-## Motivacija
-Neke tvrtke uz svoje račune šalju uplatnice koje ne sadrže 2D kod, što onemogućuje plaćanje tih računa u Konzumu i Tisku.
+- **Build System**: Migrated from legacy in-browser Babel to **Vite** for faster development and optimized production builds.
+- **State Management**: Replaced legacy Redux with **Redux Toolkit**.
+    - `src/redux/nalogSlice.js`: Contains all logic for form state updates, clearing, and loading.
+    - `src/redux/store.js`: Configures the store.
+- **Components**: Converted all Class components to **Functional Components** with **Hooks**.
+    - `src/hooks/useNalogField.js`: Custom hook that handles connecting inputs to Redux and running validation logic.
+    - `src/components/form/*`: Modularized UI components (`TextInput`, `SelectBase`, `Barcode`, etc.).
+    - `src/components/LoadDialog.jsx` & `SaveDialog.jsx`: Integrated logic for local storage and file handling directly into these components.
+- **Legacy Libraries**:
+    - `src/lib/BarcodePayment.js`: Refactored to an ES Module (removed IIFE, replaced jQuery with native JS).
+    - `src/lib/bcmath-min.js` & `src/lib/pdf417-min.js`: Refactored to ES Modules with proper exports/imports.
+    - `src/lib/Blob.js`: Removed (not needed in modern browsers/builds).
+    - `src/main.jsx`: Cleaned up to remove global side-effect imports.
 
-Pomoću ovog generatora možete generirati uplatnicu sa 2D kodom, koju ćete moći uplatiti na blagajnama Konzuma, kioscima Tiska i slično...
+## Project Structure
 
-## Demo
-Demo ove web aplikacije možete pronaći na adresi [knee-cola.github.io/generator-opce-uplatnice/](https://knee-cola.github.io/generator-opce-uplatnice/).
+```
+src/
+├── assets/          # Static assets (images)
+├── components/      # React components
+│   ├── form/        # Form-specific components (TextInput, Barcode, etc.)
+│   └── ...          # Dialogs and main Forma
+├── hooks/           # Custom React hooks (useNalogField)
+├── lib/             # Logic libraries (BarcodePayment, facade, etc.)
+├── redux/           # Redux setup (store, slices)
+├── App.jsx          # Main application layout
+├── main.jsx         # Entry point (Providers, global imports)
+└── index.css        # Styles
+```
 
-# Detalji imaplementacija
-## Spremanje naloga u web preglednik
-Nalozi se serijaliziraju u JSON string, te bivaju spremljeni u `LocalStorage`.
+## How to Run
 
-## Spremanje naloga u datoteku
-Nativni `<input>` za odabir datoteke ne podržava prilagodbu prikazane labele. Iz tog razloga je nativni `<input>` skriven kroz CSS, te je na njegovo mjesto dodan klasični `<button>`, koji putem JavaScripta trigerira `click` akciju na nativnom `<input>`-u.
+1.  **Install dependencies** (if not done):
+    ```bash
+    npm install
+    ```
+2.  **Start development server**:
+    ```bash
+    npm run dev
+    ```
+3.  **Build for production** (outputs to `docs/` for GitHub Pages):
+    ```bash
+    npm run build
+    ```
 
-Nativni input je skriven tako da mu je kroz CSS zadan mala dimenzija. Naime ako bi mu postavili `display: hidden;`, tada browser ne bi na njega ispravno reagirao (tako sam barem pročitao na Stack Overflow ... nisam si dato truda da testiram).
+## Verification
 
-## Spremanju u PDF
-Spremanje generiranog naloga u PDF nije nativno podržano. Umjesto toga korisnik može odabrati ispis u PDF (podržano unutar nekih web preglednika).
-
-# ToDo
-* provjeriti zašto duži opis plaćanja ne prolazi validaciju
-* provjeriti da li generianje radi sa "HR" sufiksom u oznaci modela
-* u slučaju kada 2D kod ne može biti generiran umjesto ispisa na Canvas staviti da bude prikazana neka `<html>` poruka
+- **Form Input**: Typing in fields should update state and run validation (red borders for invalid input).
+- **Barcode**: The barcode should regenerate as you type valid data.
+- **Dialogs**:
+    - "Spremi u web preglednik": Should save to local storage.
+    - "Spremi u datoteku": Should download a JSON file.
+    - "Učitaj odabrani nalog": Should populate the form from storage.
+    - "Učitaj nalog iz datoteke": Should populate form from uploaded JSON.
+- **Multiple Slips**:
+    - "DODAJ UPLATNICU": Should add a new empty form below the existing one.
+    - "NOVI NALOG (RESET)": Should reset the view to a single empty form.
+    - Editing one form should not affect others (independent barcode generation).
