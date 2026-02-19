@@ -1,5 +1,11 @@
 # Walkthrough: Modernized Generator Opće Uplatnice
 
+This project was forked from [github.com/knee-cola/generator-opce-uplatnice](https://github.com/knee-cola/generator-opce-uplatnice/).
+
+That application is an upgrade of the web application [github.com/Bikonja/generator-barkoda-uplatnica](https://github.com/Bikonja/generator-barkoda-uplatnica), authored by [Igor Loborec](https://github.com/Bikonja).
+
+The 2D barcode is generated using the [PDF417-js library](https://github.com/bkuzmic/pdf417-js), authored by [Boris Kuzmic](https://github.com/bkuzmic).
+
 This document outlines the changes made to modernize the React application and provides instructions for running and maintaining it.
 
 ## Changes Overview
